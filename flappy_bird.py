@@ -29,13 +29,22 @@ class Bird():
 
 class Pipe():
 	def __init__(self):
-		pass
+		self.wallx = 180
+		self.pipeUp = pygame.image.load("pipe_up.png")
+		self.pipeDown = pygame.image.load("pipe_down.png")
 	#to move pipe
 	def pipeMove(self):
-		pass
+		self.wallx -= 2
+		if self.wallx < -42:
+			global score
+			score += 10
+			self.wallx = 290
 
 def createMap():
 	screen.blit(background, (0, 0))
+	#show pipe
+	screen.blit(Pipe.pipeDown, (int(Pipe.wallx), -120))
+	screen.blit(Pipe.pipeUp, (int(Pipe.wallx), 300))
 	#show bird
 	if Bird.dead:
 		Bird.status = 3
@@ -46,15 +55,21 @@ def createMap():
 
 	screen.blit(Bird.birdStatus[Bird.status], (int(Bird.birdx), int(Bird.birdy)))
 	Bird.birdMove()
+	Pipe.pipeMove()
+	#show font
+	screen.blit(font.render('Score:'+ str(score), 1, (255, 255, 255)), (80, 20))
 	pygame.display.update()
 
 if __name__ == '__main__':
 	pygame.init()
+	pygame.font.init()
+	font = pygame.font.SysFont(None, 40)
 	size = (288, 512)
 	screen = pygame.display.set_mode(size)
 	clock = pygame.time.Clock()
 	Bird = Bird()
-	
+	Pipe = Pipe()
+	score = 0
 	while True:
 		clock.tick(60)
 		for event in pygame.event.get():
