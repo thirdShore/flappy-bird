@@ -4,6 +4,7 @@ import pygame, sys
 
 class Bird():
 	def __init__(self):
+		self.birdRect = pygame.Rect(40, 250, 40, 30)
 		self.birdStatus = [
 			pygame.image.load("bird0_0.png"),
 			pygame.image.load("bird0_1.png"),
@@ -15,7 +16,7 @@ class Bird():
 		self.birdy = 250
 		self.jump = False
 		self.jumpHeight = 10
-		self.downHeight = 1
+		self.downHeight = 0.5
 		self.dead = False
 	#to move bird	
 	def birdMove(self):
@@ -25,6 +26,7 @@ class Bird():
 		else:
 			self.downHeight += 0.1
 			self.birdy += self.downHeight
+			self.birdRect[1] = int(self.birdy)
 
 
 class Pipe():
@@ -38,13 +40,25 @@ class Pipe():
 		if self.wallx < -42:
 			global score
 			score += 10
-			self.wallx = 290
+			scoreSound.play()
+			self.wallx = 300
+
+# def checkDead():
+# 	rectUp = pygame.Rect(Pipe.wallx, 362, Pipe.pipeUp.get_width(), Pipe.pipeUp.get_height())
+# 	rectDown = pygame.Rect(Pipe.wallx, -150, Pipe.pipeUp.get_width(), Pipe.pipeUp.get_height())
+# 	if rectUp.colliderect(Bird.birdRect) or rectDown.colliderect(Bird.birdRect):
+# 		Bird.dead = True
+# 	if 0 < Bird.birdRect[1] < 512:
+# 		Bird.dead = True
+# 		return True
+# 	else:
+# 		return False
 
 def createMap():
 	screen.blit(background, (0, 0))
 	#show pipe
-	screen.blit(Pipe.pipeDown, (int(Pipe.wallx), -120))
-	screen.blit(Pipe.pipeUp, (int(Pipe.wallx), 300))
+	screen.blit(Pipe.pipeDown, (int(Pipe.wallx), -150))
+	screen.blit(Pipe.pipeUp, (int(Pipe.wallx), 362))
 	#show bird
 	if Bird.dead:
 		Bird.status = 3
@@ -60,8 +74,17 @@ def createMap():
 	screen.blit(font.render('Score:'+ str(score), 1, (255, 255, 255)), (80, 20))
 	pygame.display.update()
 
+#setup sound
+pygame.mixer.init()
+pygame.mixer.music.load('music.ogg')
+pygame.mixer.music.play(-1, 0.0)
+musicPlaying = True
+jumpSound = pygame.mixer.Sound('jump.ogg')
+scoreSound = pygame.mixer.Sound('score.ogg')
+
 if __name__ == '__main__':
 	pygame.init()
+	pygame.mixer.init()
 	pygame.font.init()
 	font = pygame.font.SysFont(None, 40)
 	size = (288, 512)
@@ -71,15 +94,22 @@ if __name__ == '__main__':
 	Pipe = Pipe()
 	score = 0
 	while True:
+		#pygame.mixer.music.play()
 		clock.tick(60)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				sys.exit()
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_UP:
+					jumpSound.play()
 					Bird.jump = True
 					Bird.jumpHeight = 10
 					Bird.downHeight = 1
+
 		background = pygame.image.load("bg_day.png")
+		# if checkDead():
+		# 	#getResult()
+		# 	pass
+		# else:
 		createMap()
 	pygame.QUIT()
